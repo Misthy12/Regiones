@@ -48,8 +48,13 @@
     sintegrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function(){
+            $('#region').change(function(){
+                $('#Contenedor').html(``);
+            });
+
             $('#buscar').keyup(function(){ //Al levantar la tecla se ejecuta la funcion
                 var palabraClave = $(this).val(); //Guarda el Valor del elemento donde se teclea
+                
                 //VIENDO SI LA PALABRA CLAVE O SEA EL VALRO EN LA CAJA DE TEXTO BUSCAR ESTA VACIA
                 if(palabraClave != ""){
                     obtenerPais(palabraClave);
@@ -58,16 +63,18 @@
             });
             function obtenerPais(palabraClave)
            {
-            
+            var region = $('#region').val();
             var buscarPais = $.ajax({ // --> ESTO AJAX
-                    type: 'GET',
-                    url: 'https://restcountries.eu/rest/v2/name/'+ palabraClave,
+                    type: 'GET',     
+                    url: 'https://restcountries.eu/rest/v2/name/'+palabraClave,
                     dataType: 'JSON'
                 });
                 buscarPais.done(function(data){
                     $('#Contenedor').html(``);
+
                     $.each(data, function(index, value){
-                $('#Contenedor').append(`
+                        if(region=="all"){
+                            $('#Contenedor').append(`
                     <div class="card col-lg-4 col-sm-5 col">
                         <div class="card-header">${value.name}</div>
                         <div class="row card-body">  
@@ -81,8 +88,30 @@
                         </div>
                         </div>                       
                     </div>`
-                    );
+                );
+            }else{
+                if(value.region == region){
+                    $('#Contenedor').append(`
+                    <div class="card col-lg-4 col-sm-5 col">
+                        <div class="card-header">${value.name}</div>
+                        <div class="row card-body">  
+                        <div class="col-6">
+                            <img src="${value.flag}" class="card-img-top" alt="${value.name}"></div>
+                        <div class="col-6">                                            
+                        <p><b>Capital:</b>${value.capital}</p>
+                        <p><b>Region:</b>${value.region}</p>
+                        <p><b>Sub-Region:</b>${value.subregion}</p>
+                        <p><b>Población:</b>${addCommas(value.population)}</p>
+                        </div>
+                        </div>                       
+                    </div>`
+                );
+
+                }
+
+            }
                 });
+            
                });
 
                buscarPais.fail(function(xhr, status, error){
